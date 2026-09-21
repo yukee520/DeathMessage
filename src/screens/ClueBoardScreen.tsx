@@ -12,26 +12,32 @@ import { EmptyView, LoadingView, ErrorView } from '@/components/StateViews';
 
 type TabKey = 'unlocked' | 'locked';
 
+const EMPTY_ARRAY: string[] = [];
+
 export default function ClueBoardScreen(): JSX.Element {
   const activeCaseId = useGameStore((s) => s.activeCaseId);
   const remote = useRemoteCases();
   const pkgQuery = useCaseDetail(activeCaseId ?? undefined);
   const [tab, setTab] = useState<TabKey>('unlocked');
 
-  const unlockedIds = useGameStore((s) =>
-    activeCaseId ? s.sessions[activeCaseId]?.unlockedClueIds ?? [] : [],
+  const unlockedIds = useGameStore(
+    (s) => s.sessions[activeCaseId ?? '']?.unlockedClueIds,
+  );
+  const safeUnlockedIds = unlockedIds ?? EMPTY_ARRAY;
+
+  const allClues = useMemo<Clue[]>(
+    () => pkgQuery.data?.clues ?? [],
+    [pkgQuery.data],
   );
 
-  const allClues = pkgQuery.data?.clues ?? [];
-
   const unlocked = useMemo<Clue[]>(
-    () => allClues.filter((c) => unlockedIds.includes(c.id)),
-    [allClues, unlockedIds],
+    () => allClues.filter((c) => safeUnlockedIds.includes(c.id)),
+    [allClues, safeUnlockedIds],
   );
 
   const locked = useMemo<Clue[]>(
-    () => allClues.filter((c) => !unlockedIds.includes(c.id)),
-    [allClues, unlockedIds],
+    () => allClues.filter((c) => !safeUnlockedIds.includes(c.id)),
+    [allClues, safeUnlockedIds],
   );
 
   const data = tab === 'unlocked' ? unlocked : locked;
@@ -46,9 +52,7 @@ export default function ClueBoardScreen(): JSX.Element {
             <View
               className={[
                 'mr-3 h-10 w-10 items-center justify-center rounded-full',
-                isLocked
-                  ? 'bg-border dark:bg-dark-border'
-                  : 'bg-primary/10',
+                isLocked ? 'bg-border dark:bg-dark-border' : 'bg-primary/10',
               ].join(' ')}
             >
               <Ionicons
@@ -72,9 +76,7 @@ export default function ClueBoardScreen(): JSX.Element {
                 numberOfLines={isLocked ? 1 : 3}
                 className="mt-0.5 text-xs text-muted dark:text-dark-muted"
               >
-                {isLocked
-                  ? 'Keep investigating to reveal this clue.'
-                  : item.description}
+                {isLocked ? '继续调查以解锁此线索。' : item.description}
               </Text>
             </View>
           </View>
@@ -86,11 +88,14 @@ export default function ClueBoardScreen(): JSX.Element {
 
   if (!activeCaseId) {
     return (
-      <SafeAreaView className="flex-1 bg-background dark:bg-dark-background" edges={['top']}>
-        <HeaderBar title="Clue Board" subtitle="No active case" />
+      <SafeAreaView
+        className="flex-1 bg-background dark:bg-dark-background"
+        edges={['top']}
+      >
+        <HeaderBar title="线索板" subtitle="未选择案件" />
         <EmptyView
-          title="No active case"
-          message="Start a case to collect clues and build your board."
+          title="暂无进行中的案件"
+          message="开始一个案件后，你收集到的线索会显示在这里。"
           icon="search-outline"
         />
       </SafeAreaView>
@@ -99,20 +104,26 @@ export default function ClueBoardScreen(): JSX.Element {
 
   if (pkgQuery.isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-background dark:bg-dark-background" edges={['top']}>
-        <HeaderBar title="Clue Board" />
-        <LoadingView message="Loading clue board…" />
+      <SafeAreaView
+        className="flex-1 bg-background dark:bg-dark-background"
+        edges={['top']}
+      >
+        <HeaderBar title="线索板" />
+        <LoadingView message="加载线索中…" />
       </SafeAreaView>
     );
   }
 
   if (pkgQuery.isError || !pkgQuery.data) {
     return (
-      <SafeAreaView className="flex-1 bg-background dark:bg-dark-background" edges={['top']}>
-        <HeaderBar title="Clue Board" />
+      <SafeAreaView
+        className="flex-1 bg-background dark:bg-dark-background"
+        edges={['top']}
+      >
+        <HeaderBar title="线索板" />
         <ErrorView
-          title="Cannot load clues"
-          message={pkgQuery.error?.message ?? 'The case file is not available.'}
+          title="无法加载线索"
+          message={pkgQuery.error?.message ?? '案件文件不可用。'}
           onRetry={() => pkgQuery.refetch()}
         />
       </SafeAreaView>
@@ -120,9 +131,12 @@ export default function ClueBoardScreen(): JSX.Element {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background dark:bg-dark-background" edges={['top']}>
+    <SafeAreaView
+      className="flex-1 bg-background dark:bg-dark-background"
+      edges={['top']}
+    >
       <HeaderBar
-        title="Clue Board"
+        title="线索板"
         subtitle={activeEntry?.title ?? pkgQuery.data.title}
       />
 
@@ -138,10 +152,12 @@ export default function ClueBoardScreen(): JSX.Element {
             <Text
               className={[
                 'text-sm font-semibold',
-                tab === 'unlocked' ? 'text-white' : 'text-muted dark:text-dark-muted',
+                tab === 'unlocked'
+                  ? 'text-white'
+                  : 'text-muted dark:text-dark-muted',
               ].join(' ')}
             >
-              Unlocked ({unlocked.length})
+              已解锁 ({unlocked.length})
             </Text>
           </Pressable>
           <Pressable
@@ -154,10 +170,12 @@ export default function ClueBoardScreen(): JSX.Element {
             <Text
               className={[
                 'text-sm font-semibold',
-                tab === 'locked' ? 'text-white' : 'text-muted dark:text-dark-muted',
+                tab === 'locked'
+                  ? 'text-white'
+                  : 'text-muted dark:text-dark-muted',
               ].join(' ')}
             >
-              Locked ({locked.length})
+              未解锁 ({locked.length})
             </Text>
           </Pressable>
         </View>
@@ -170,13 +188,15 @@ export default function ClueBoardScreen(): JSX.Element {
         renderItem={renderClue}
         ListEmptyComponent={
           <EmptyView
-            title={tab === 'unlocked' ? 'No clues yet' : 'Nothing hidden'}
+            title={tab === 'unlocked' ? '尚未收集线索' : '没有隐藏的线索'}
             message={
               tab === 'unlocked'
-                ? 'Continue the chat to discover clues.'
-                : 'All clues in this case have been found.'
+                ? '继续对话即可获得新线索。'
+                : '此案件的所有线索都已被发现。'
             }
-            icon={tab === 'unlocked' ? 'search-outline' : 'checkmark-done-outline'}
+            icon={
+              tab === 'unlocked' ? 'search-outline' : 'checkmark-done-outline'
+            }
           />
         }
       />
