@@ -75,14 +75,14 @@ export default function ChatScreen(): JSX.Element {
   }, [navigation, caseId]);
 
   if (pkgQuery.isLoading) {
-    return <LoadingView message="Opening the channel…" />;
+    return <LoadingView message="正在打开对话…" />;
   }
 
   if (pkgQuery.isError || !pkgQuery.data) {
     return (
       <ErrorView
-        title="Cannot open this case"
-        message={pkgQuery.error?.message ?? 'Case data is not available.'}
+        title="无法打开此案件"
+        message={pkgQuery.error?.message ?? '案件数据不可用。'}
         onRetry={() => pkgQuery.refetch()}
       />
     );
@@ -94,7 +94,7 @@ export default function ChatScreen(): JSX.Element {
 
   const headerRight = (
     <AppButton
-      label="Suspects"
+      label="嫌疑人"
       icon="people-outline"
       variant="secondary"
       onPress={handleOpenSuspects}
@@ -102,9 +102,12 @@ export default function ChatScreen(): JSX.Element {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-background dark:bg-dark-background" edges={['top']}>
+    <SafeAreaView
+      className="flex-1 bg-background dark:bg-dark-background"
+      edges={['top']}
+    >
       <HeaderBar
-        title={chapter?.title ?? 'Chat'}
+        title={chapter?.title ?? '对话'}
         subtitle={pkgQuery.data.title}
         showBack
         right={headerRight}
@@ -130,7 +133,10 @@ export default function ChatScreen(): JSX.Element {
             }
             const sender = chapter?.suspects.find((s) => s.id === item.senderId);
             return (
-              <MessageBubble message={item} senderName={sender?.name ?? item.senderName} />
+              <MessageBubble
+                message={item}
+                senderName={sender?.name ?? item.senderName}
+              />
             );
           }}
           ListFooterComponent={
@@ -140,7 +146,7 @@ export default function ChatScreen(): JSX.Element {
               {showChoices ? (
                 <View className="mt-4">
                   <Text className="mb-1 ml-1 text-xs font-bold uppercase tracking-wider text-muted dark:text-dark-muted">
-                    Your reply
+                    你的回复
                   </Text>
                   {session.availableChoices.map((choice) => (
                     <ChoiceButton
@@ -159,7 +165,7 @@ export default function ChatScreen(): JSX.Element {
           <ChatInputBar
             onSend={handleFreeText}
             disabled={session.isAwaitingLLM}
-            placeholder="Speak to them…"
+            placeholder="对 Ta 说话…"
           />
         ) : null}
       </KeyboardAvoidingView>
