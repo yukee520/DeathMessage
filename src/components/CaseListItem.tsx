@@ -23,12 +23,19 @@ const DIFFICULTY_COLOR: Record<string, string> = {
   nightmare: '#EF4444',
 };
 
+const DIFFICULTY_LABEL: Record<string, string> = {
+  easy: '轻松',
+  normal: '普通',
+  hard: '困难',
+  nightmare: '噩梦',
+};
+
 const STATUS_LABEL: Record<string, string> = {
-  'not-downloaded': 'Not downloaded',
-  downloading: 'Downloading',
-  downloaded: 'Ready to play',
-  'update-available': 'Update available',
-  error: 'Download failed',
+  'not-downloaded': '未下载',
+  downloading: '下载中',
+  downloaded: '可开始',
+  'update-available': '有更新',
+  error: '下载失败',
 };
 
 export default function CaseListItem({
@@ -50,6 +57,8 @@ export default function CaseListItem({
       : '#64748B';
 
   const difficultyColor = DIFFICULTY_COLOR[entry.difficulty] ?? '#64748B';
+  const difficultyText =
+    DIFFICULTY_LABEL[entry.difficulty] ?? entry.difficulty;
 
   return (
     <AppCard onPress={onPress} className="mb-3">
@@ -88,10 +97,10 @@ export default function CaseListItem({
               style={{ backgroundColor: difficultyColor + '20' }}
             >
               <Text
-                className="text-xs font-semibold capitalize"
+                className="text-xs font-semibold"
                 style={{ color: difficultyColor }}
               >
-                {entry.difficulty}
+                {difficultyText}
               </Text>
             </View>
             <View className="flex-row items-center">
@@ -118,7 +127,7 @@ export default function CaseListItem({
       <View className="mt-3 flex-row flex-wrap gap-2">
         {entry.status === 'not-downloaded' ? (
           <AppButton
-            label="Download"
+            label="下载"
             icon="download-outline"
             onPress={onDownload}
             disabled={isDownloading}
@@ -127,9 +136,9 @@ export default function CaseListItem({
 
         {entry.status === 'downloaded' ? (
           <>
-            <AppButton label="Play" icon="play" onPress={onPress} />
+            <AppButton label="开始" icon="play" onPress={onPress} />
             <AppButton
-              label="Delete"
+              label="删除"
               icon="trash-outline"
               variant="secondary"
               onPress={onDelete}
@@ -139,14 +148,19 @@ export default function CaseListItem({
 
         {entry.status === 'update-available' ? (
           <>
-            <AppButton label="Update" icon="refresh" onPress={onUpdate} />
-            <AppButton label="Play" icon="play" variant="secondary" onPress={onPress} />
+            <AppButton label="更新" icon="refresh" onPress={onUpdate} />
+            <AppButton
+              label="开始"
+              icon="play"
+              variant="secondary"
+              onPress={onPress}
+            />
           </>
         ) : null}
 
         {entry.status === 'error' ? (
           <AppButton
-            label="Retry"
+            label="重试"
             icon="reload-outline"
             variant="danger"
             onPress={onDownload}
