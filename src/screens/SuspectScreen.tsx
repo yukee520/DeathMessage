@@ -35,22 +35,21 @@ export default function SuspectScreen(): JSX.Element {
         pkgQuery.data.endings[0]?.id;
 
     if (!endingId) {
-      Alert.alert('No ending available', 'This case has no endings defined.');
+      Alert.alert('没有可用结局', '此案件尚未定义结局。');
       return;
     }
 
     Alert.alert(
-      `Accuse ${suspect.name}?`,
+      `指认 ${suspect.name}？`,
       isGuilty
-        ? 'You feel certain. There is no turning back.'
-        : 'You are about to accuse someone. This decision is final.',
+        ? '你很确定。但一旦做出选择，就无法回头。'
+        : '你即将指认某人。此决定不可撤销。',
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: '取消', style: 'cancel' },
         {
-          text: 'Accuse',
+          text: '指认',
           style: 'destructive',
-          onPress: () =>
-            navigation.replace('Ending', { caseId, endingId }),
+          onPress: () => navigation.replace('Ending', { caseId, endingId }),
         },
       ],
     );
@@ -69,20 +68,26 @@ export default function SuspectScreen(): JSX.Element {
 
   if (pkgQuery.isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-background dark:bg-dark-background" edges={['top']}>
-        <HeaderBar title="Suspects" showBack />
-        <LoadingView message="Loading suspect list…" />
+      <SafeAreaView
+        className="flex-1 bg-background dark:bg-dark-background"
+        edges={['top']}
+      >
+        <HeaderBar title="嫌疑人" showBack />
+        <LoadingView message="加载嫌疑人列表…" />
       </SafeAreaView>
     );
   }
 
   if (pkgQuery.isError || !pkgQuery.data) {
     return (
-      <SafeAreaView className="flex-1 bg-background dark:bg-dark-background" edges={['top']}>
-        <HeaderBar title="Suspects" showBack />
+      <SafeAreaView
+        className="flex-1 bg-background dark:bg-dark-background"
+        edges={['top']}
+      >
+        <HeaderBar title="嫌疑人" showBack />
         <ErrorView
-          title="Cannot load suspects"
-          message={pkgQuery.error?.message ?? 'Case data is unavailable.'}
+          title="无法加载嫌疑人"
+          message={pkgQuery.error?.message ?? '案件数据不可用。'}
           onRetry={() => pkgQuery.refetch()}
         />
       </SafeAreaView>
@@ -93,10 +98,13 @@ export default function SuspectScreen(): JSX.Element {
   const selected = suspects.find((s) => s.id === selectedId);
 
   return (
-    <SafeAreaView className="flex-1 bg-background dark:bg-dark-background" edges={['top']}>
+    <SafeAreaView
+      className="flex-1 bg-background dark:bg-dark-background"
+      edges={['top']}
+    >
       <HeaderBar
-        title="Suspects"
-        subtitle={`${suspects.length} person${suspects.length === 1 ? '' : 's'} of interest`}
+        title="嫌疑人"
+        subtitle={`共 ${suspects.length} 名相关人员`}
         showBack
       />
 
@@ -107,8 +115,8 @@ export default function SuspectScreen(): JSX.Element {
         renderItem={renderSuspect}
         ListEmptyComponent={
           <EmptyView
-            title="No suspects"
-            message="This case has no suspects defined."
+            title="暂无嫌疑人"
+            message="此案件没有定义嫌疑人。"
             icon="people-outline"
           />
         }
@@ -118,7 +126,7 @@ export default function SuspectScreen(): JSX.Element {
         <View className="border-t border-border dark:border-dark-border bg-card dark:bg-dark-card px-4 py-3">
           <AppCard className="mb-3">
             <Text className="text-xs uppercase tracking-wider text-muted dark:text-dark-muted">
-              Accusing
+              你正在指认
             </Text>
             <Text className="mt-1 text-base font-bold text-text dark:text-dark-text">
               {selected.name}
@@ -128,7 +136,7 @@ export default function SuspectScreen(): JSX.Element {
             </Text>
           </AppCard>
           <AppButton
-            label="Make the accusation"
+            label="正式指认"
             icon="warning-outline"
             variant="danger"
             fullWidth
@@ -138,7 +146,7 @@ export default function SuspectScreen(): JSX.Element {
       ) : (
         <View className="border-t border-border dark:border-dark-border bg-card dark:bg-dark-card px-4 py-3">
           <Text className="text-center text-xs text-muted dark:text-dark-muted">
-            Select a suspect to proceed.
+            选择一个嫌疑人以继续。
           </Text>
         </View>
       )}
