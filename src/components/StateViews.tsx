@@ -7,11 +7,15 @@ export interface LoadingViewProps {
   message?: string;
 }
 
-export function LoadingView({ message = 'Loading…' }: LoadingViewProps): JSX.Element {
+export function LoadingView({
+  message = '加载中…',
+}: LoadingViewProps): JSX.Element {
   return (
     <View className="flex-1 items-center justify-center bg-background dark:bg-dark-background px-6">
       <ActivityIndicator size="large" color="#2563EB" />
-      <Text className="mt-4 text-base text-muted dark:text-dark-muted">{message}</Text>
+      <Text className="mt-4 text-base text-muted dark:text-dark-muted">
+        {message}
+      </Text>
     </View>
   );
 }
@@ -23,7 +27,7 @@ export interface ErrorViewProps {
 }
 
 export function ErrorView({
-  title = 'Something went wrong',
+  title = '出现了问题',
   message,
   onRetry,
 }: ErrorViewProps): JSX.Element {
@@ -38,7 +42,7 @@ export function ErrorView({
       </Text>
       {onRetry ? (
         <View className="mt-6">
-          <AppButton label="Try again" icon="refresh" onPress={onRetry} />
+          <AppButton label="重试" icon="refresh" onPress={onRetry} />
         </View>
       ) : null}
     </View>
@@ -54,7 +58,7 @@ export interface EmptyViewProps {
 }
 
 export function EmptyView({
-  title = 'Nothing here yet',
+  title = '空空如也',
   message,
   icon = 'file-tray-outline',
   actionLabel,
