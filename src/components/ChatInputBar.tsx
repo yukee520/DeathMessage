@@ -17,7 +17,7 @@ export interface ChatInputBarProps {
 export default function ChatInputBar({
   onSend,
   disabled = false,
-  placeholder = 'Type your reply…',
+  placeholder = '输入你的回复…',
 }: ChatInputBarProps): JSX.Element {
   const [text, setText] = useState<string>('');
 
@@ -47,7 +47,9 @@ export default function ChatInputBar({
           disabled={disabled || text.trim().length === 0}
           className={[
             'h-11 w-11 items-center justify-center rounded-full bg-primary',
-            disabled || text.trim().length === 0 ? 'opacity-40' : 'active:opacity-80',
+            disabled || text.trim().length === 0
+              ? 'opacity-40'
+              : 'active:opacity-80',
           ].join(' ')}
         >
           <Ionicons name="send" size={18} color="#FFFFFF" />
