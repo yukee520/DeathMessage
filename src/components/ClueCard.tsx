@@ -15,7 +15,7 @@ export default function ClueCard({ clue }: ClueCardProps): JSX.Element {
           <Ionicons name="search" size={16} color="#FFFFFF" />
         </View>
         <Text className="text-xs font-bold uppercase tracking-wider text-primary">
-          Clue Discovered
+          获得线索
         </Text>
       </View>
       <Text className="mt-3 text-base font-semibold text-text dark:text-dark-text">
