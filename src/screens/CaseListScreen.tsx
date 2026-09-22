@@ -1,11 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  RefreshControl,
-  Alert,
-} from 'react-native';
+import { View, Text, FlatList, RefreshControl, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -39,7 +33,8 @@ export default function CaseListScreen(): JSX.Element {
       } else if (downloader.errorOf(entry.id)) {
         status = 'error';
       } else if (record) {
-        status = record.version < entry.version ? 'update-available' : 'downloaded';
+        status =
+          record.version < entry.version ? 'update-available' : 'downloaded';
       }
       return {
         ...entry,
@@ -69,12 +64,12 @@ export default function CaseListScreen(): JSX.Element {
   const handleDelete = useCallback(
     (entry: MergedCaseEntry): void => {
       Alert.alert(
-        'Delete case data?',
-        `"${entry.title}" will be removed from this device. Progress in this case will be kept but the story files will be gone.`,
+        '删除案件数据？',
+        `「${entry.title}」将从本设备移除。此案件的进度会保留，但剧情文件会被删除。`,
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: '取消', style: 'cancel' },
           {
-            text: 'Delete',
+            text: '删除',
             style: 'destructive',
             onPress: () => {
               void downloader.remove(entry.id);
@@ -88,37 +83,36 @@ export default function CaseListScreen(): JSX.Element {
 
   const handleOpen = useCallback(
     (entry: MergedCaseEntry): void => {
-      if (entry.status === 'downloaded' || entry.status === 'update-available') {
-        navigation.navigate('CaseDetail', { caseId: entry.id });
-      } else {
-        navigation.navigate('CaseDetail', { caseId: entry.id });
-      }
+      navigation.navigate('CaseDetail', { caseId: entry.id });
     },
     [navigation],
   );
 
   if (remote.isLoading && !remote.data) {
-    return <LoadingView message="Loading case files…" />;
+    return <LoadingView message="正在加载案件列表…" />;
   }
 
   if (remote.isError && !remote.data) {
     return (
       <ErrorView
-        title="Cannot load cases"
-        message={remote.error?.message ?? 'Please check your connection.'}
+        title="无法加载案件"
+        message={remote.error?.message ?? '请检查你的网络连接。'}
         onRetry={() => remote.refetch()}
       />
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background dark:bg-dark-background" edges={['top']}>
+    <SafeAreaView
+      className="flex-1 bg-background dark:bg-dark-background"
+      edges={['top']}
+    >
       <HeaderBar
-        title="Cases"
-        subtitle="Download stories to play offline"
+        title="案件"
+        subtitle="下载剧情后可离线游玩"
         right={
           <Text className="text-xs text-muted dark:text-dark-muted">
-            {merged.length} case{merged.length === 1 ? '' : 's'}
+            共 {merged.length} 个案件
           </Text>
         }
       />
@@ -136,10 +130,10 @@ export default function CaseListScreen(): JSX.Element {
         }
         ListEmptyComponent={
           <EmptyView
-            title="No cases available"
-            message="The content server has no cases yet. Pull down to refresh."
+            title="暂无可用案件"
+            message="内容服务器上还没有案件。下拉刷新试试。"
             icon="folder-open-outline"
-            actionLabel="Refresh"
+            actionLabel="刷新"
             onAction={() => remote.refetch()}
           />
         }
