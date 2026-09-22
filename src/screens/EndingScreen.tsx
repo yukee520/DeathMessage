@@ -64,14 +64,14 @@ export default function EndingScreen(): JSX.Element {
   }, [navigation, resetSession, caseId]);
 
   if (pkgQuery.isLoading) {
-    return <LoadingView message="Revealing the truth…" />;
+    return <LoadingView message="正在揭晓真相…" />;
   }
 
   if (pkgQuery.isError || !pkgQuery.data) {
     return (
       <ErrorView
-        title="Cannot load ending"
-        message={pkgQuery.error?.message ?? 'Ending data is unavailable.'}
+        title="无法加载结局"
+        message={pkgQuery.error?.message ?? '结局数据不可用。'}
         onRetry={() => pkgQuery.refetch()}
       />
     );
@@ -80,8 +80,8 @@ export default function EndingScreen(): JSX.Element {
   if (!ending) {
     return (
       <ErrorView
-        title="Ending not found"
-        message="This ending no longer exists in the case file."
+        title="未找到结局"
+        message="此结局已不存在于案件文件中。"
       />
     );
   }
@@ -89,22 +89,22 @@ export default function EndingScreen(): JSX.Element {
   const rankColor = RANK_COLOR[ending.rank] ?? '#64748B';
 
   return (
-    <SafeAreaView className="flex-1 bg-background dark:bg-dark-background" edges={['top', 'bottom']}>
+    <SafeAreaView
+      className="flex-1 bg-background dark:bg-dark-background"
+      edges={['top', 'bottom']}
+    >
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
         <View className="items-center pt-6 pb-6">
           <View
             className="h-24 w-24 items-center justify-center rounded-full"
             style={{ backgroundColor: rankColor + '20' }}
           >
-            <Text
-              className="text-5xl font-black"
-              style={{ color: rankColor }}
-            >
+            <Text className="text-5xl font-black" style={{ color: rankColor }}>
               {ending.rank}
             </Text>
           </View>
           <Text className="mt-4 text-xs font-bold uppercase tracking-[4px] text-muted dark:text-dark-muted">
-            {ending.isTrueEnding ? 'True Ending' : 'Ending'}
+            {ending.isTrueEnding ? '真结局' : '结局'}
           </Text>
           <Text className="mt-2 text-center text-2xl font-black text-text dark:text-dark-text">
             {ending.title}
@@ -126,15 +126,15 @@ export default function EndingScreen(): JSX.Element {
             />
             <Text className="ml-2 flex-1 text-xs text-muted dark:text-dark-muted">
               {ending.isTrueEnding
-                ? 'You uncovered the complete truth of this case.'
-                : 'There may be another path. Replay to discover it.'}
+                ? '你揭开了此案件的全部真相。'
+                : '也许还有另一条路。重玩以发现它。'}
             </Text>
           </View>
         </AppCard>
 
         <View className="mb-3">
           <AppButton
-            label="Replay this case"
+            label="重玩此案件"
             icon="refresh-outline"
             variant="secondary"
             fullWidth
@@ -143,7 +143,7 @@ export default function EndingScreen(): JSX.Element {
         </View>
         <View className="mb-3">
           <AppButton
-            label="Back to home"
+            label="返回首页"
             icon="home-outline"
             fullWidth
             onPress={handleBackHome}
