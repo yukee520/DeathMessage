@@ -22,6 +22,18 @@ import HeaderBar from '@/components/HeaderBar';
 import AppCard from '@/components/AppCard';
 import AppButton from '@/components/AppButton';
 
+const THEME_LABEL: Record<'system' | 'light' | 'dark', string> = {
+  system: '跟随系统',
+  light: '浅色',
+  dark: '深色',
+};
+
+const FONT_LABEL: Record<'small' | 'medium' | 'large', string> = {
+  small: '小',
+  medium: '中',
+  large: '大',
+};
+
 export default function SettingsScreen(): JSX.Element {
   const settings = useSettingsStore();
   const theme = useThemeStore();
@@ -40,7 +52,7 @@ export default function SettingsScreen(): JSX.Element {
     void queryClient.invalidateQueries({ queryKey: ['remote-cases'] });
     Toast.show({
       type: 'success',
-      text1: 'Content source saved',
+      text1: '内容源已保存',
       position: 'bottom',
     });
   }, [contentUrl, settings, queryClient]);
@@ -51,7 +63,7 @@ export default function SettingsScreen(): JSX.Element {
     void queryClient.invalidateQueries({ queryKey: ['remote-cases'] });
     Toast.show({
       type: 'success',
-      text1: 'Reset to default source',
+      text1: '已恢复默认内容源',
       position: 'bottom',
     });
   }, [settings, queryClient]);
@@ -64,27 +76,27 @@ export default function SettingsScreen(): JSX.Element {
     });
     Toast.show({
       type: 'success',
-      text1: 'LLM settings saved',
-      text2: 'New replies will use these settings.',
+      text1: 'LLM 设置已保存',
+      text2: '之后的回复将使用新配置。',
       position: 'bottom',
     });
   }, [settings, llmEndpoint, llmApiKey, llmModel]);
 
   const handleClearCache = useCallback((): void => {
     Alert.alert(
-      'Clear cache?',
-      'This clears locally cached query data. Downloaded cases are kept.',
+      '清除缓存？',
+      '将清除本地缓存的查询数据。已下载的案件会保留。',
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: '取消', style: 'cancel' },
         {
-          text: 'Clear',
+          text: '清除',
           style: 'destructive',
           onPress: () => {
             queryClient.clear();
             clearDownloads();
             Toast.show({
               type: 'success',
-              text1: 'Cache cleared',
+              text1: '缓存已清除',
               position: 'bottom',
             });
           },
@@ -95,19 +107,19 @@ export default function SettingsScreen(): JSX.Element {
 
   const handleResetProgress = useCallback((): void => {
     Alert.alert(
-      'Reset all progress?',
-      'All game sessions and profile stats will be erased. Downloaded cases are kept.',
+      '重置所有进度？',
+      '所有游戏进度与档案统计将被清空。已下载的案件会保留。',
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: '取消', style: 'cancel' },
         {
-          text: 'Reset',
+          text: '重置',
           style: 'destructive',
           onPress: () => {
             resetAllSessions();
             resetProfile();
             Toast.show({
               type: 'success',
-              text1: 'Progress reset',
+              text1: '进度已重置',
               position: 'bottom',
             });
           },
@@ -117,15 +129,18 @@ export default function SettingsScreen(): JSX.Element {
   }, [resetAllSessions, resetProfile]);
 
   return (
-    <SafeAreaView className="flex-1 bg-background dark:bg-dark-background" edges={['top']}>
-      <HeaderBar title="Settings" showBack />
+    <SafeAreaView
+      className="flex-1 bg-background dark:bg-dark-background"
+      edges={['top']}
+    >
+      <HeaderBar title="设置" showBack />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 48 }}>
         <Text className="mb-2 ml-1 text-xs font-bold uppercase tracking-wider text-muted dark:text-dark-muted">
-          Appearance
+          外观
         </Text>
         <AppCard className="mb-5">
           <Text className="text-sm font-semibold text-text dark:text-dark-text">
-            Theme mode
+            主题模式
           </Text>
           <View className="mt-3 flex-row">
             {(['system', 'light', 'dark'] as const).map((mode) => (
@@ -141,13 +156,13 @@ export default function SettingsScreen(): JSX.Element {
               >
                 <Text
                   className={[
-                    'text-sm font-semibold capitalize',
+                    'text-sm font-semibold',
                     theme.mode === mode
                       ? 'text-white'
                       : 'text-text dark:text-dark-text',
                   ].join(' ')}
                 >
-                  {mode}
+                  {THEME_LABEL[mode]}
                 </Text>
               </Pressable>
             ))}
@@ -155,7 +170,7 @@ export default function SettingsScreen(): JSX.Element {
 
           <View className="mt-4 border-t border-border dark:border-dark-border pt-3">
             <Text className="text-sm font-semibold text-text dark:text-dark-text">
-              Font size
+              字体大小
             </Text>
             <View className="mt-3 flex-row">
               {(['small', 'medium', 'large'] as const).map((size) => (
@@ -171,13 +186,13 @@ export default function SettingsScreen(): JSX.Element {
                 >
                   <Text
                     className={[
-                      'text-sm font-semibold capitalize',
+                      'text-sm font-semibold',
                       settings.fontSize === size
                         ? 'text-white'
                         : 'text-text dark:text-dark-text',
                     ].join(' ')}
                   >
-                    {size}
+                    {FONT_LABEL[size]}
                   </Text>
                 </Pressable>
               ))}
@@ -186,14 +201,14 @@ export default function SettingsScreen(): JSX.Element {
         </AppCard>
 
         <Text className="mb-2 ml-1 text-xs font-bold uppercase tracking-wider text-muted dark:text-dark-muted">
-          Content Source
+          内容源
         </Text>
         <AppCard className="mb-5">
           <Text className="text-sm font-semibold text-text dark:text-dark-text">
-            Case index URL
+            案件索引 URL
           </Text>
           <Text className="mt-1 text-xs text-muted dark:text-dark-muted">
-            Base URL of your GitHub content repository.
+            你的 GitHub 内容仓库的基础地址。
           </Text>
           <TextInput
             value={contentUrl}
@@ -205,9 +220,13 @@ export default function SettingsScreen(): JSX.Element {
             className="mt-3 rounded-xl border border-border dark:border-dark-border bg-background dark:bg-dark-background px-3 py-2 text-xs text-text dark:text-dark-text"
           />
           <View className="mt-3 flex-row flex-wrap gap-2">
-            <AppButton label="Save" icon="save-outline" onPress={handleSaveContentUrl} />
             <AppButton
-              label="Reset"
+              label="保存"
+              icon="save-outline"
+              onPress={handleSaveContentUrl}
+            />
+            <AppButton
+              label="恢复默认"
               icon="refresh-outline"
               variant="secondary"
               onPress={handleResetContentUrl}
@@ -216,14 +235,14 @@ export default function SettingsScreen(): JSX.Element {
         </AppCard>
 
         <Text className="mb-2 ml-1 text-xs font-bold uppercase tracking-wider text-muted dark:text-dark-muted">
-          LLM Configuration
+          LLM 配置
         </Text>
         <AppCard className="mb-5">
           <Text className="text-sm font-semibold text-text dark:text-dark-text">
-            OpenAI-compatible endpoint
+            OpenAI 兼容接口地址
           </Text>
           <Text className="mt-1 text-xs text-muted dark:text-dark-muted">
-            Your backend proxy URL. Leave blank to use built-in fallback replies.
+            你的后端代理地址。留空则使用内置的默认回复。
           </Text>
           <TextInput
             value={llmEndpoint}
@@ -236,7 +255,7 @@ export default function SettingsScreen(): JSX.Element {
           />
 
           <Text className="mt-4 text-sm font-semibold text-text dark:text-dark-text">
-            API key
+            API 密钥
           </Text>
           <TextInput
             value={llmApiKey}
@@ -250,7 +269,7 @@ export default function SettingsScreen(): JSX.Element {
           />
 
           <Text className="mt-4 text-sm font-semibold text-text dark:text-dark-text">
-            Model
+            模型
           </Text>
           <TextInput
             value={llmModel}
@@ -264,7 +283,7 @@ export default function SettingsScreen(): JSX.Element {
 
           <View className="mt-4">
             <AppButton
-              label="Save LLM settings"
+              label="保存 LLM 设置"
               icon="save-outline"
               onPress={handleSaveLLM}
               fullWidth
@@ -273,16 +292,16 @@ export default function SettingsScreen(): JSX.Element {
         </AppCard>
 
         <Text className="mb-2 ml-1 text-xs font-bold uppercase tracking-wider text-muted dark:text-dark-muted">
-          Feedback
+          反馈
         </Text>
         <AppCard className="mb-5">
           <View className="flex-row items-center justify-between">
             <View className="flex-1 pr-3">
               <Text className="text-sm font-semibold text-text dark:text-dark-text">
-                Sound effects
+                音效
               </Text>
               <Text className="text-xs text-muted dark:text-dark-muted">
-                Atmosphere and message tones.
+                氛围音与消息提示音。
               </Text>
             </View>
             <Switch
@@ -294,10 +313,10 @@ export default function SettingsScreen(): JSX.Element {
           <View className="mt-4 flex-row items-center justify-between border-t border-border dark:border-dark-border pt-3">
             <View className="flex-1 pr-3">
               <Text className="text-sm font-semibold text-text dark:text-dark-text">
-                Haptics
+                震动反馈
               </Text>
               <Text className="text-xs text-muted dark:text-dark-muted">
-                Vibration on key actions.
+                关键操作时震动。
               </Text>
             </View>
             <Switch
@@ -309,11 +328,11 @@ export default function SettingsScreen(): JSX.Element {
         </AppCard>
 
         <Text className="mb-2 ml-1 text-xs font-bold uppercase tracking-wider text-muted dark:text-dark-muted">
-          Danger Zone
+          危险操作
         </Text>
         <AppCard className="mb-8">
           <AppButton
-            label="Clear cache"
+            label="清除缓存"
             icon="trash-outline"
             variant="secondary"
             fullWidth
@@ -321,7 +340,7 @@ export default function SettingsScreen(): JSX.Element {
           />
           <View className="mt-3">
             <AppButton
-              label="Reset all progress"
+              label="重置所有进度"
               icon="warning-outline"
               variant="danger"
               fullWidth
@@ -333,7 +352,7 @@ export default function SettingsScreen(): JSX.Element {
         <View className="items-center">
           <Ionicons name="skull-outline" size={28} color="#94A3B8" />
           <Text className="mt-2 text-xs text-muted dark:text-dark-muted">
-            Death Message v1.0.0
+            死亡信息 v1.0.0
           </Text>
         </View>
       </ScrollView>
