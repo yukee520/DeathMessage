@@ -34,7 +34,11 @@ export default function DownloadsScreen(): JSX.Element {
   }, [downloaded, remote]);
 
   const totalSize = useMemo<number>(
-    () => (downloaded.data ?? []).reduce((acc, r) => acc + (r.sizeBytes || 0), 0),
+    () =>
+      (downloaded.data ?? []).reduce(
+        (acc, r) => acc + (r.sizeBytes || 0),
+        0,
+      ),
     [downloaded.data],
   );
 
@@ -42,12 +46,12 @@ export default function DownloadsScreen(): JSX.Element {
     (record: DownloadedCaseRecord): void => {
       const entry = remote.data?.cases.find((c) => c.id === record.id);
       Alert.alert(
-        'Delete case data?',
-        `"${entry?.title ?? record.id}" will be removed from this device.`,
+        '删除案件数据？',
+        `「${entry?.title ?? record.id}」将从本设备移除。`,
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: '取消', style: 'cancel' },
           {
-            text: 'Delete',
+            text: '删除',
             style: 'destructive',
             onPress: () => {
               void downloader.remove(record.id);
@@ -61,9 +65,12 @@ export default function DownloadsScreen(): JSX.Element {
 
   if (downloaded.isLoading && !downloaded.data) {
     return (
-      <SafeAreaView className="flex-1 bg-background dark:bg-dark-background" edges={['top']}>
-        <HeaderBar title="Downloads" showBack />
-        <LoadingView message="Loading downloads…" />
+      <SafeAreaView
+        className="flex-1 bg-background dark:bg-dark-background"
+        edges={['top']}
+      >
+        <HeaderBar title="下载管理" showBack />
+        <LoadingView message="加载下载记录…" />
       </SafeAreaView>
     );
   }
@@ -71,10 +78,13 @@ export default function DownloadsScreen(): JSX.Element {
   const records = downloaded.data ?? [];
 
   return (
-    <SafeAreaView className="flex-1 bg-background dark:bg-dark-background" edges={['top']}>
+    <SafeAreaView
+      className="flex-1 bg-background dark:bg-dark-background"
+      edges={['top']}
+    >
       <HeaderBar
-        title="Downloads"
-        subtitle={`${records.length} case${records.length === 1 ? '' : 's'} • ${formatFileSize(totalSize)}`}
+        title="下载管理"
+        subtitle={`${records.length} 个案件 • ${formatFileSize(totalSize)}`}
         showBack
       />
       <FlatList
@@ -91,13 +101,11 @@ export default function DownloadsScreen(): JSX.Element {
         }
         ListEmptyComponent={
           <EmptyView
-            title="No downloads"
-            message="Cases you download will appear here for offline play."
+            title="暂无下载"
+            message="你下载的案件会出现在这里，可离线游玩。"
             icon="cloud-download-outline"
-            actionLabel="Browse cases"
-            onAction={() =>
-              navigation.navigate('Tabs', { screen: 'Cases' })
-            }
+            actionLabel="浏览案件"
+            onAction={() => navigation.navigate('Tabs', { screen: 'Cases' })}
           />
         }
         renderItem={({ item }) => {
@@ -107,7 +115,11 @@ export default function DownloadsScreen(): JSX.Element {
             <AppCard className="mb-3">
               <View className="flex-row items-center">
                 <View className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <Ionicons name="document-text-outline" size={20} color="#2563EB" />
+                  <Ionicons
+                    name="document-text-outline"
+                    size={20}
+                    color="#2563EB"
+                  />
                 </View>
                 <View className="flex-1">
                   <Text
@@ -125,16 +137,20 @@ export default function DownloadsScreen(): JSX.Element {
 
               {hasUpdate ? (
                 <View className="mt-3 flex-row items-center rounded-xl bg-amber-500/10 px-3 py-2">
-                  <Ionicons name="arrow-up-circle-outline" size={16} color="#F59E0B" />
+                  <Ionicons
+                    name="arrow-up-circle-outline"
+                    size={16}
+                    color="#F59E0B"
+                  />
                   <Text className="ml-2 text-xs text-amber-600 dark:text-amber-400">
-                    Update available (v{entry?.version})
+                    有新版本（v{entry?.version}）
                   </Text>
                 </View>
               ) : null}
 
               <View className="mt-3 flex-row flex-wrap gap-2">
                 <AppButton
-                  label="Play"
+                  label="开始"
                   icon="play"
                   onPress={() =>
                     navigation.navigate('Chat', { caseId: item.id })
@@ -142,7 +158,7 @@ export default function DownloadsScreen(): JSX.Element {
                 />
                 {hasUpdate && entry ? (
                   <AppButton
-                    label="Update"
+                    label="更新"
                     icon="refresh-outline"
                     variant="secondary"
                     onPress={() => {
@@ -151,7 +167,7 @@ export default function DownloadsScreen(): JSX.Element {
                   />
                 ) : null}
                 <AppButton
-                  label="Delete"
+                  label="删除"
                   icon="trash-outline"
                   variant="ghost"
                   onPress={() => handleDelete(item)}
