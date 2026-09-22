@@ -12,7 +12,7 @@ import { useDownloadCase } from '@/hooks/useDownloadCase';
 import { useCaseDetail } from '@/hooks/useCaseDetail';
 import { useGameStore } from '@/store/useGameStore';
 import { usePlayerStore } from '@/store/usePlayerStore';
-import { LoadingView, ErrorView, EmptyView } from '@/components/StateViews';
+import { LoadingView, EmptyView } from '@/components/StateViews';
 import HeaderBar from '@/components/HeaderBar';
 import AppButton from '@/components/AppButton';
 import AppCard from '@/components/AppCard';
@@ -48,7 +48,8 @@ export default function CaseDetailScreen(): JSX.Element {
     if (downloader.isDownloading(caseId)) return 'downloading';
     if (downloader.errorOf(caseId)) return 'error';
     if (!localRecord) return 'not-downloaded';
-    if (remoteEntry && localRecord.version < remoteEntry.version) return 'update-available';
+    if (remoteEntry && localRecord.version < remoteEntry.version)
+      return 'update-available';
     return 'downloaded';
   }, [caseId, downloader, localRecord, remoteEntry]);
 
@@ -58,20 +59,16 @@ export default function CaseDetailScreen(): JSX.Element {
   }, [remoteEntry, downloader]);
 
   const handleDelete = useCallback((): void => {
-    Alert.alert(
-      'Delete this case?',
-      'The story files will be removed from this device.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            void downloader.remove(caseId);
-          },
+    Alert.alert('删除此案件？', '剧情文件将从本设备移除。', [
+      { text: '取消', style: 'cancel' },
+      {
+        text: '删除',
+        style: 'destructive',
+        onPress: () => {
+          void downloader.remove(caseId);
         },
-      ],
-    );
+      },
+    ]);
   }, [caseId, downloader]);
 
   const handleStart = useCallback((): void => {
@@ -80,21 +77,31 @@ export default function CaseDetailScreen(): JSX.Element {
     ensureSession(caseId, pkgQuery.data.startChapterId);
     recordCaseStart();
     navigation.navigate('Chat', { caseId });
-  }, [pkgQuery.data, caseId, setActiveCase, ensureSession, recordCaseStart, navigation]);
+  }, [
+    pkgQuery.data,
+    caseId,
+    setActiveCase,
+    ensureSession,
+    recordCaseStart,
+    navigation,
+  ]);
 
   if (!remoteEntry && remote.isLoading) {
-    return <LoadingView message="Loading case…" />;
+    return <LoadingView message="加载案件中…" />;
   }
 
   if (!remoteEntry) {
     return (
-      <SafeAreaView className="flex-1 bg-background dark:bg-dark-background" edges={['top']}>
-        <HeaderBar title="Case not found" showBack />
+      <SafeAreaView
+        className="flex-1 bg-background dark:bg-dark-background"
+        edges={['top']}
+      >
+        <HeaderBar title="未找到案件" showBack />
         <EmptyView
-          title="This case is unavailable"
-          message="It may have been removed from the content server."
+          title="此案件不可用"
+          message="它可能已从内容服务器移除。"
           icon="alert-circle-outline"
-          actionLabel="Back"
+          actionLabel="返回"
           onAction={() => navigation.goBack()}
         />
       </SafeAreaView>
@@ -102,10 +109,12 @@ export default function CaseDetailScreen(): JSX.Element {
   }
 
   const isReady = status === 'downloaded' || status === 'update-available';
-  const cover = remoteEntry.coverUrl;
 
   return (
-    <SafeAreaView className="flex-1 bg-background dark:bg-dark-background" edges={['top']}>
+    <SafeAreaView
+      className="flex-1 bg-background dark:bg-dark-background"
+      edges={['top']}
+    >
       <HeaderBar
         title={remoteEntry.title}
         subtitle={remoteEntry.subtitle}
@@ -119,8 +128,14 @@ export default function CaseDetailScreen(): JSX.Element {
           <View className="p-4">
             <View className="flex-row flex-wrap">
               <View className="mr-2 rounded-full bg-primary/10 px-3 py-1">
-                <Text className="text-xs font-semibold capitalize text-primary">
-                  {remoteEntry.difficulty}
+                <Text className="text-xs font-semibold text-primary">
+                  {remoteEntry.difficulty === 'easy'
+                    ? '轻松'
+                    : remoteEntry.difficulty === 'normal'
+                    ? '普通'
+                    : remoteEntry.difficulty === 'hard'
+                    ? '困难'
+                    : '噩梦'}
                 </Text>
               </View>
               {remoteEntry.tags.map((tag) => (
@@ -136,7 +151,7 @@ export default function CaseDetailScreen(): JSX.Element {
             </View>
             <Text className="mt-3 text-sm leading-6 text-muted dark:text-dark-muted">
               {pkgQuery.data?.intro ??
-                'Download this case to read the full intro, suspects and clues.'}
+                '下载此案件以查看完整简介、嫌疑人及线索。'}
             </Text>
           </View>
         </AppCard>
@@ -144,7 +159,7 @@ export default function CaseDetailScreen(): JSX.Element {
         {status === 'downloading' ? (
           <AppCard className="mb-4">
             <Text className="mb-2 text-sm font-semibold text-text dark:text-dark-text">
-              Downloading…
+              正在下载…
             </Text>
             <DownloadProgressBar percent={downloader.progressOf(caseId)} />
           </AppCard>
@@ -152,9 +167,9 @@ export default function CaseDetailScreen(): JSX.Element {
 
         {status === 'error' ? (
           <AppCard className="mb-4 border-danger">
-            <Text className="text-sm font-semibold text-danger">Download failed</Text>
+            <Text className="text-sm font-semibold text-danger">下载失败</Text>
             <Text className="mt-1 text-xs text-muted dark:text-dark-muted">
-              {downloader.errorOf(caseId) ?? 'Unknown error'}
+              {downloader.errorOf(caseId) ?? '未知错误'}
             </Text>
           </AppCard>
         ) : null}
@@ -162,7 +177,7 @@ export default function CaseDetailScreen(): JSX.Element {
         {pkgQuery.data && isReady ? (
           <AppCard className="mb-4">
             <Text className="text-xs font-bold uppercase tracking-wider text-muted dark:text-dark-muted">
-              Case File
+              案件档案
             </Text>
             <View className="mt-3 flex-row justify-between">
               <View className="items-center flex-1">
@@ -170,7 +185,7 @@ export default function CaseDetailScreen(): JSX.Element {
                   {pkgQuery.data.chapters.length}
                 </Text>
                 <Text className="text-xs text-muted dark:text-dark-muted">
-                  Chapters
+                  章节
                 </Text>
               </View>
               <View className="items-center flex-1">
@@ -178,7 +193,7 @@ export default function CaseDetailScreen(): JSX.Element {
                   {pkgQuery.data.suspects.length}
                 </Text>
                 <Text className="text-xs text-muted dark:text-dark-muted">
-                  Suspects
+                  嫌疑人
                 </Text>
               </View>
               <View className="items-center flex-1">
@@ -186,7 +201,7 @@ export default function CaseDetailScreen(): JSX.Element {
                   {pkgQuery.data.endings.length}
                 </Text>
                 <Text className="text-xs text-muted dark:text-dark-muted">
-                  Endings
+                  结局
                 </Text>
               </View>
             </View>
@@ -196,7 +211,11 @@ export default function CaseDetailScreen(): JSX.Element {
         {isReady ? (
           <View className="mb-3">
             <AppButton
-              label={status === 'update-available' ? 'Play (new version ready)' : 'Start investigation'}
+              label={
+                status === 'update-available'
+                  ? '开始游戏（有新版本可用）'
+                  : '开始调查'
+              }
               icon="play"
               fullWidth
               onPress={handleStart}
@@ -207,7 +226,7 @@ export default function CaseDetailScreen(): JSX.Element {
         {status === 'not-downloaded' ? (
           <View className="mb-3">
             <AppButton
-              label="Download case"
+              label="下载案件"
               icon="download-outline"
               fullWidth
               onPress={handleDownload}
@@ -219,7 +238,7 @@ export default function CaseDetailScreen(): JSX.Element {
         {status === 'update-available' ? (
           <View className="mb-3">
             <AppButton
-              label="Update to latest version"
+              label="更新到最新版本"
               icon="refresh"
               variant="secondary"
               fullWidth
@@ -232,7 +251,7 @@ export default function CaseDetailScreen(): JSX.Element {
         {status === 'error' ? (
           <View className="mb-3">
             <AppButton
-              label="Retry download"
+              label="重试下载"
               icon="reload-outline"
               variant="danger"
               fullWidth
@@ -244,7 +263,7 @@ export default function CaseDetailScreen(): JSX.Element {
         {localRecord ? (
           <View className="mb-3">
             <AppButton
-              label="Delete case data"
+              label="删除案件数据"
               icon="trash-outline"
               variant="ghost"
               fullWidth
